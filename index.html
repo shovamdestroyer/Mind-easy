@@ -1,0 +1,1018 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>MindEase AI – Guided Meditations and ASMR</title>
+  <meta name="description" content="MindEase AI is a relaxing web application offering AI-guided meditation, visual breathing exercises, customizable ASMR soundscapes, and mindfulness tracking.">
+  <meta name="keywords" content="meditation, mindfulness, ASMR, breathing exercise, stress relief, AI wellness">
+  
+  <!-- Google Fonts: Inter & Outfit for modern, peaceful typography -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700&family=Plus+Jakarta+Sans:wght@300;400;500;600&display=swap" rel="stylesheet">
+  
+  <link rel="stylesheet" href="style.css">
+  <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🪷</text></svg>">
+</head>
+<body>
+
+  <!-- Ambient Background Canvas & Overlay -->
+  <div class="nature-background" id="natureBg">
+    <canvas id="particleCanvas" class="particle-canvas" aria-hidden="true"></canvas>
+    <div class="nature-overlay"></div>
+  </div>
+
+  <!-- Accessibility Skip Link -->
+  <a href="#mainContent" class="skip-link">Skip to main content</a>
+
+  <!-- Main Navigation Bar -->
+  <header class="app-header" id="appHeader">
+    <div class="nav-container">
+      <div class="brand-logo" id="brandLogo">
+        <span class="logo-icon">
+          <!-- Lotus SVG Icon -->
+          <svg viewBox="0 0 48 48" fill="none" class="lotus-svg" xmlns="http://www.w3.org/2000/svg">
+            <path d="M24 6C24 6 29 16 29 24C29 30 24 36 24 36C24 36 19 30 19 24C19 16 24 6 24 6Z" fill="url(#lotusGrad1)"/>
+            <path d="M24 16C28 17 38 22 39 30C40 37 32 40 26 38C25 36 24 33 24 33C24 33 23 36 22 38C16 40 8 37 9 30C10 22 20 17 24 16Z" fill="url(#lotusGrad2)" fill-opacity="0.85"/>
+            <path d="M24 25C26 27 34 32 32 39C30 42 25 41 24 40C23 41 18 42 16 39C14 32 22 27 24 25Z" fill="url(#lotusGrad3)"/>
+            <defs>
+              <linearGradient id="lotusGrad1" x1="24" y1="6" x2="24" y2="36" gradientUnits="userSpaceOnUse">
+                <stop stop-color="#E0C3FC"/>
+                <stop offset="1" stop-color="#8EC5FC"/>
+              </linearGradient>
+              <linearGradient id="lotusGrad2" x1="9" y1="20" x2="39" y2="38" gradientUnits="userSpaceOnUse">
+                <stop stop-color="#B2EBF2"/>
+                <stop offset="1" stop-color="#C5CAE9"/>
+              </linearGradient>
+              <linearGradient id="lotusGrad3" x1="16" y1="25" x2="32" y2="42" gradientUnits="userSpaceOnUse">
+                <stop stop-color="#F8BBD0"/>
+                <stop offset="1" stop-color="#E1BEE7"/>
+              </linearGradient>
+            </defs>
+          </svg>
+        </span>
+        <div class="brand-text">
+          <span class="brand-title">MindEase <span class="ai-badge">AI</span></span>
+          <span class="brand-sub">Guided Meditations & ASMR</span>
+        </div>
+      </div>
+
+      <!-- Desktop Nav Links -->
+      <nav class="nav-links" id="navLinks" aria-label="Main Navigation">
+        <a href="#home" class="nav-link active" data-nav="home">Home</a>
+        <a href="#mood" class="nav-link" data-nav="mood">Mood Guide</a>
+        <a href="#meditate" class="nav-link" data-nav="meditate">Meditation</a>
+        <a href="#asmr" class="nav-link" data-nav="asmr">ASMR Sounds</a>
+        <a href="#assistant" class="nav-link" data-nav="assistant">AI Companion</a>
+        <a href="#progress" class="nav-link" data-nav="progress">My Progress</a>
+        <a href="#about" class="nav-link" data-nav="about">About</a>
+      </nav>
+
+      <!-- User Account Action Area -->
+      <div class="user-nav-actions">
+        <!-- Logged In State Badge -->
+        <div class="user-profile-badge" id="userProfileBadge" style="display: none;">
+          <span class="user-avatar" id="userAvatar">🧘</span>
+          <span class="user-name" id="userDisplayName">Guest</span>
+          <button class="logout-btn" id="logoutBtn" title="Sign out of MindEase AI" aria-label="Sign out">
+            <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2">
+              <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"></path>
+              <polyline points="16 17 21 12 16 7"></polyline>
+              <line x1="21" y1="12" x2="9" y2="12"></line>
+            </svg>
+          </button>
+        </div>
+
+        <!-- Auth Trigger Button (when logged out) -->
+        <button class="btn-primary auth-open-btn" id="authOpenBtn" aria-label="Open Login or Signup Modal">
+          <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2">
+            <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path>
+            <circle cx="12" cy="7" r="4"></circle>
+          </svg>
+          <span>Sign In / Demo</span>
+        </button>
+
+        <!-- Mobile Menu Toggle Button -->
+        <button class="mobile-menu-btn" id="mobileMenuBtn" aria-label="Toggle navigation menu" aria-expanded="false">
+          <span class="bar"></span>
+          <span class="bar"></span>
+          <span class="bar"></span>
+        </button>
+      </div>
+    </div>
+  </header>
+
+  <!-- Main App Content -->
+  <main id="mainContent" class="main-content">
+
+    <!-- ==============================================
+         1. HOME SECTION (Hero)
+         ============================================== -->
+    <section id="home" class="section hero-section" aria-labelledby="heroTitle">
+      <div class="hero-content glass-card animate-fade-in">
+        <div class="hero-badge">
+          <span class="pulse-dot"></span> Mindful Living & Emotional Calm
+        </div>
+        <h1 id="heroTitle" class="hero-title">
+          Breathe In Peace, <br>
+          <span class="gradient-text">Exhale Everyday Stress</span>
+        </h1>
+        <p class="hero-subtitle">
+          Welcome to <strong class="brand-highlight">MindEase AI</strong> — your tranquil sanctuary. Experience tailored breathing exercises, soothing AI guidance, and layered ambient ASMR soundscapes designed to calm your nervous system.
+        </p>
+
+        <div class="hero-actions">
+          <a href="#mood" class="btn-primary hero-cta-btn">
+            <span>Start Relaxing</span>
+            <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2">
+              <path d="M5 12h14M12 5l7 7-7 7"></path>
+            </svg>
+          </a>
+          <a href="#asmr" class="btn-secondary hero-asmr-btn">
+            <span>Play ASMR Sounds</span>
+            <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2">
+              <polygon points="5 3 19 12 5 21 5 3"></polygon>
+            </svg>
+          </a>
+        </div>
+
+        <!-- Quick Wellness Highlights -->
+        <div class="hero-stats-ribbon">
+          <div class="ribbon-item">
+            <span class="ribbon-icon">🌸</span>
+            <div class="ribbon-text">
+              <strong>Mood-Adaptive</strong>
+              <small>Custom meditation routines</small>
+            </div>
+          </div>
+          <div class="ribbon-item">
+            <span class="ribbon-icon">🔊</span>
+            <div class="ribbon-text">
+              <strong>Voice-Guided</strong>
+              <small>Web Speech API narration</small>
+            </div>
+          </div>
+          <div class="ribbon-item">
+            <span class="ribbon-icon">🎧</span>
+            <div class="ribbon-text">
+              <strong>Procedural ASMR</strong>
+              <small>100% reliable soundscapes</small>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ==============================================
+         2. CHOOSE YOUR MOOD (AI Recommendations)
+         ============================================== -->
+    <section id="mood" class="section mood-section" aria-labelledby="moodTitle">
+      <div class="section-header">
+        <span class="section-tag">AI Mood Insights</span>
+        <h2 id="moodTitle" class="section-title">How Are You Feeling Right Now?</h2>
+        <p class="section-description">
+          Select your current emotional state. MindEase AI will recommend a targeted mindfulness session and synchronized ambient soundscape to bring you back to center.
+        </p>
+      </div>
+
+      <!-- Mood Selector Buttons -->
+      <div class="mood-grid" role="group" aria-label="Select your current mood">
+        <button class="mood-card active" data-mood="stressed" id="moodStressed">
+          <div class="mood-emoji">🌿</div>
+          <h3 class="mood-name">Stressed</h3>
+          <p class="mood-desc">Overwhelmed with tasks or tension</p>
+        </button>
+
+        <button class="mood-card" data-mood="anxious" id="moodAnxious">
+          <div class="mood-emoji">🌊</div>
+          <h3 class="mood-name">Anxious</h3>
+          <p class="mood-desc">Restless mind, racing heart, or worry</p>
+        </button>
+
+        <button class="mood-card" data-mood="sad" id="moodSad">
+          <div class="mood-emoji">🌸</div>
+          <h3 class="mood-name">Sad</h3>
+          <p class="mood-desc">Feeling low, heavy-hearted, or tired</p>
+        </button>
+
+        <button class="mood-card" data-mood="tired" id="moodTired">
+          <div class="mood-emoji">🌙</div>
+          <h3 class="mood-name">Tired</h3>
+          <p class="mood-desc">Low energy, drained, needing sleep</p>
+        </button>
+
+        <button class="mood-card" data-mood="happy" id="moodHappy">
+          <div class="mood-emoji">☀️</div>
+          <h3 class="mood-name">Happy</h3>
+          <p class="mood-desc">Grateful, content, cultivating joy</p>
+        </button>
+      </div>
+
+      <!-- Mood Recommendation Display Card -->
+      <div class="recommendation-card glass-card" id="recommendationCard">
+        <div class="rec-badge" id="recBadge">Recommended for: Stressed</div>
+        <div class="rec-grid">
+          <div class="rec-details">
+            <h3 class="rec-title" id="recTitle">Box Breathing (Sama Vritti) for Nervous System Reset</h3>
+            <p class="rec-summary" id="recSummary">
+              When stress hormones spike, equal-ratio breathing balances the sympathetic and parasympathetic nervous systems, lowering cortisol within minutes.
+            </p>
+            <div class="rec-specs">
+              <span class="spec-pill" id="recDuration">⏱️ Recommended: 5 Minutes</span>
+              <span class="spec-pill" id="recBreathType">🫁 Pattern: 4s Inhale - 4s Hold - 4s Exhale - 4s Rest</span>
+              <span class="spec-pill" id="recSound">🎵 Ambient Match: Rainfall & Warm Rain</span>
+            </div>
+          </div>
+          <div class="rec-action-box">
+            <button class="btn-primary" id="applyRecBtn">
+              <span>Start This Session</span>
+              <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2">
+                <path d="M5 12h14M12 5l7 7-7 7"></path>
+              </svg>
+            </button>
+          </div>
+        </div>
+
+        <!-- Non-Medical Ethical Disclaimer -->
+        <aside class="medical-disclaimer" role="note">
+          <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" class="disclaimer-icon">
+            <circle cx="12" cy="12" r="10"></circle>
+            <line x1="12" y1="16" x2="12" y2="12"></line>
+            <line x1="12" y1="8" x2="12.01" y2="8"></line>
+          </svg>
+          <span><strong>Mindfulness Note:</strong> Mood selection is entirely self-reported and for relaxation assistance only. MindEase AI does not diagnose, treat, or replace professional mental health or medical care.</span>
+        </aside>
+      </div>
+    </section>
+
+    <!-- ==============================================
+         3. GUIDED MEDITATION & BREATHING
+         ============================================== -->
+    <section id="meditate" class="section meditation-section" aria-labelledby="meditateTitle">
+      <div class="section-header">
+        <span class="section-tag">Interactive Practice</span>
+        <h2 id="meditateTitle" class="section-title">Guided Meditation & Breathwork</h2>
+        <p class="section-description">
+          Follow the pulsating breathing circle. Audio instructions are spoken aloud via your browser's Text-to-Speech engine.
+        </p>
+      </div>
+
+      <div class="meditation-container glass-card">
+        <!-- Session Configuration Controls -->
+        <div class="meditation-configs">
+          <div class="config-group">
+            <label for="durationSelect" class="config-label">Session Duration:</label>
+            <div class="btn-group duration-toggle" role="group" aria-label="Select session duration">
+              <button class="btn-pill" data-minutes="2" id="dur2Btn">2 Min</button>
+              <button class="btn-pill active" data-minutes="5" id="dur5Btn">5 Min</button>
+              <button class="btn-pill" data-minutes="10" id="dur10Btn">10 Min</button>
+            </div>
+          </div>
+
+          <div class="config-group">
+            <label for="breathPatternSelect" class="config-label">Breathing Technique:</label>
+            <select id="breathPatternSelect" class="styled-select" aria-label="Select breathing technique">
+              <option value="box">Box Breathing (4-4-4-4: Instant Calm)</option>
+              <option value="478">4-7-8 Breathing (Deep Sleep & Anxiety Relief)</option>
+              <option value="deep">Calm Rhythm (4-2-6-2: Heart Rate Lowering)</option>
+              <option value="energizing">Awakening Breath (4-1-4-1: Mental Clarity)</option>
+            </select>
+          </div>
+
+          <div class="config-group voice-config">
+            <label class="config-label">Voice Guidance:</label>
+            <button class="btn-pill voice-toggle-btn active" id="voiceToggleBtn" aria-pressed="true" title="Toggle audio voice narration">
+              <span id="voiceIcon">🗣️</span> <span id="voiceStatusText">Voice On</span>
+            </button>
+          </div>
+        </div>
+
+        <!-- The Interactive Breathing Circle Display -->
+        <div class="breathing-stage">
+          <div class="circle-container" id="circleContainer">
+            <!-- Pulsing Breathing Ring -->
+            <div class="breathing-circle" id="breathingCircle">
+              <div class="circle-inner">
+                <span class="breath-instruction" id="breathInstruction">Ready</span>
+                <span class="breath-phase-timer" id="breathPhaseTimer">Click Start</span>
+              </div>
+            </div>
+
+            <!-- Surrounding SVG Progress Ring -->
+            <svg class="progress-ring-svg" width="320" height="320" viewBox="0 0 320 320" aria-hidden="true">
+              <circle class="progress-ring-bg" stroke="rgba(255,255,255,0.15)" stroke-width="6" fill="transparent" r="145" cx="160" cy="160"/>
+              <circle class="progress-ring-fill" id="sessionProgressRing" stroke="url(#ringGradient)" stroke-width="6" stroke-linecap="round" fill="transparent" r="145" cx="160" cy="160"/>
+              <defs>
+                <linearGradient id="ringGradient" x1="0%" y1="0%" x2="100%" y2="100%">
+                  <stop offset="0%" stop-color="#9B87F5"/>
+                  <stop offset="50%" stop-color="#64B5F6"/>
+                  <stop offset="100%" stop-color="#81C784"/>
+                </linearGradient>
+              </defs>
+            </svg>
+          </div>
+
+          <!-- Real-Time Guided Spoken Cue Subtitle -->
+          <div class="meditation-prompt-box">
+            <p class="guided-subtitle" id="guidedSubtitle">
+              "Find a comfortable position. Allow your shoulders to drop and let your attention rest softly on your breath."
+            </p>
+          </div>
+
+          <!-- Session Countdown Display -->
+          <div class="countdown-display">
+            <span class="timer-label">Time Remaining:</span>
+            <span class="timer-digits" id="sessionTimerDigits">05:00</span>
+          </div>
+
+          <!-- Playback Action Controls -->
+          <div class="meditation-controls" role="group" aria-label="Meditation controls">
+            <button class="btn-primary control-btn" id="startMeditationBtn" aria-label="Start meditation session">
+              <svg viewBox="0 0 24 24" width="20" height="20" fill="currentColor">
+                <polygon points="5 3 19 12 5 21 5 3"></polygon>
+              </svg>
+              <span id="startBtnLabel">Start Session</span>
+            </button>
+
+            <button class="btn-secondary control-btn" id="pauseMeditationBtn" disabled aria-label="Pause meditation session">
+              <svg viewBox="0 0 24 24" width="20" height="20" fill="currentColor">
+                <rect x="6" y="4" width="4" height="16"></rect>
+                <rect x="14" y="4" width="4" height="16"></rect>
+              </svg>
+              <span>Pause</span>
+            </button>
+
+            <button class="btn-danger control-btn" id="stopMeditationBtn" disabled aria-label="Stop and reset meditation session">
+              <svg viewBox="0 0 24 24" width="20" height="20" fill="currentColor">
+                <rect x="5" y="5" width="14" height="14"></rect>
+              </svg>
+              <span>Stop / Reset</span>
+            </button>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ==============================================
+         4. ASMR SOUND LIBRARY & SOUNDSCAPE MIXER
+         ============================================== -->
+    <section id="asmr" class="section asmr-section" aria-labelledby="asmrTitle">
+      <div class="section-header">
+        <span class="section-tag">Auditory Relaxation</span>
+        <h2 id="asmrTitle" class="section-title">ASMR Soundscape Mixer</h2>
+        <p class="section-description">
+          Layer multiple organic soundscapes to craft your perfect backdrop. MindEase AI uses built-in Web Audio synthesis so ambient sounds play immediately without buffering.
+        </p>
+      </div>
+
+      <!-- Master Control Toolbar -->
+      <div class="asmr-toolbar glass-card">
+        <div class="toolbar-status">
+          <span class="playing-indicator-dot" id="soundscapeActiveDot"></span>
+          <span class="active-sounds-text" id="activeSoundsText">No sounds currently playing</span>
+        </div>
+        <div class="toolbar-actions">
+          <button class="btn-secondary btn-sm" id="stopAllAudioBtn" aria-label="Stop all currently playing ambient sounds">
+            <svg viewBox="0 0 24 24" width="16" height="16" fill="currentColor">
+              <rect x="5" y="5" width="14" height="14"></rect>
+            </svg>
+            <span>Stop All Sounds</span>
+          </button>
+          <div class="master-volume-wrap">
+            <span class="vol-icon">🔊</span>
+            <input type="range" id="masterVolumeSlider" min="0" max="1" step="0.05" value="0.8" aria-label="Master volume slider" title="Master Volume">
+          </div>
+        </div>
+      </div>
+
+      <!-- Sound Cards Grid -->
+      <div class="sound-grid" id="soundGrid">
+
+        <!-- Sound Card 1: Rainfall -->
+        <article class="sound-card glass-card" data-sound="rain">
+          <div class="sound-header">
+            <span class="sound-icon">🌧️</span>
+            <div>
+              <h3 class="sound-name">Rainfall</h3>
+              <span class="sound-type">Gentle rain on window</span>
+            </div>
+            <div class="visualizer-bars" aria-hidden="true">
+              <span></span><span></span><span></span><span></span>
+            </div>
+          </div>
+          <p class="sound-description">
+            Organic pink-noise droplets designed to mask distractions and calm sensory overload.
+          </p>
+          <div class="sound-controls">
+            <button class="btn-sound-play" data-sound="rain" aria-label="Toggle rainfall sound">
+              <span class="play-label">Play</span>
+            </button>
+            <div class="volume-container">
+              <span class="vol-label">Vol</span>
+              <input type="range" class="sound-volume" data-sound="rain" min="0" max="1" step="0.05" value="0.7" aria-label="Rainfall volume">
+            </div>
+          </div>
+        </article>
+
+        <!-- Sound Card 2: Ocean Waves -->
+        <article class="sound-card glass-card" data-sound="ocean">
+          <div class="sound-header">
+            <span class="sound-icon">🌊</span>
+            <div>
+              <h3 class="sound-name">Ocean Waves</h3>
+              <span class="sound-type">Rhythmic coastal tide</span>
+            </div>
+            <div class="visualizer-bars" aria-hidden="true">
+              <span></span><span></span><span></span><span></span>
+            </div>
+          </div>
+          <p class="sound-description">
+            Hypnotic rolling ocean surf with low-frequency filtering synchronized to deep breathing.
+          </p>
+          <div class="sound-controls">
+            <button class="btn-sound-play" data-sound="ocean" aria-label="Toggle ocean waves sound">
+              <span class="play-label">Play</span>
+            </button>
+            <div class="volume-container">
+              <span class="vol-label">Vol</span>
+              <input type="range" class="sound-volume" data-sound="ocean" min="0" max="1" step="0.05" value="0.7" aria-label="Ocean waves volume">
+            </div>
+          </div>
+        </article>
+
+        <!-- Sound Card 3: Forest Ambience -->
+        <article class="sound-card glass-card" data-sound="forest">
+          <div class="sound-header">
+            <span class="sound-icon">🌲</span>
+            <div>
+              <h3 class="sound-name">Forest Ambience</h3>
+              <span class="sound-type">Whispering pines & birds</span>
+            </div>
+            <div class="visualizer-bars" aria-hidden="true">
+              <span></span><span></span><span></span><span></span>
+            </div>
+          </div>
+          <p class="sound-description">
+            Gentle canopy rustling layered with soft harmonic morning birdsong impulses.
+          </p>
+          <div class="sound-controls">
+            <button class="btn-sound-play" data-sound="forest" aria-label="Toggle forest ambience sound">
+              <span class="play-label">Play</span>
+            </button>
+            <div class="volume-container">
+              <span class="vol-label">Vol</span>
+              <input type="range" class="sound-volume" data-sound="forest" min="0" max="1" step="0.05" value="0.6" aria-label="Forest ambience volume">
+            </div>
+          </div>
+        </article>
+
+        <!-- Sound Card 4: Gentle Wind -->
+        <article class="sound-card glass-card" data-sound="wind">
+          <div class="sound-header">
+            <span class="sound-icon">🍃</span>
+            <div>
+              <h3 class="sound-name">Gentle Wind</h3>
+              <span class="sound-type">Mountain ridge breeze</span>
+            </div>
+            <div class="visualizer-bars" aria-hidden="true">
+              <span></span><span></span><span></span><span></span>
+            </div>
+          </div>
+          <p class="sound-description">
+            Modulated bandpass breeze that gently sweeps across stereo spectrum for deep relaxation.
+          </p>
+          <div class="sound-controls">
+            <button class="btn-sound-play" data-sound="wind" aria-label="Toggle gentle wind sound">
+              <span class="play-label">Play</span>
+            </button>
+            <div class="volume-container">
+              <span class="vol-label">Vol</span>
+              <input type="range" class="sound-volume" data-sound="wind" min="0" max="1" step="0.05" value="0.65" aria-label="Gentle wind volume">
+            </div>
+          </div>
+        </article>
+
+        <!-- Sound Card 5: Tibetan Singing Bowl -->
+        <article class="sound-card glass-card" data-sound="bowl">
+          <div class="sound-header">
+            <span class="sound-icon">🥣</span>
+            <div>
+              <h3 class="sound-name">Singing Bowl</h3>
+              <span class="sound-type">Harmonic 432Hz resonance</span>
+            </div>
+            <div class="visualizer-bars" aria-hidden="true">
+              <span></span><span></span><span></span><span></span>
+            </div>
+          </div>
+          <p class="sound-description">
+            Warm, multi-harmonic sine wave overtone decay designed for grounding meditation.
+          </p>
+          <div class="sound-controls">
+            <button class="btn-sound-play" data-sound="bowl" aria-label="Toggle singing bowl sound">
+              <span class="play-label">Play</span>
+            </button>
+            <div class="volume-container">
+              <span class="vol-label">Vol</span>
+              <input type="range" class="sound-volume" data-sound="bowl" min="0" max="1" step="0.05" value="0.75" aria-label="Singing bowl volume">
+            </div>
+          </div>
+        </article>
+
+        <!-- Sound Card 6: Cozy Night & Fireplace -->
+        <article class="sound-card glass-card" data-sound="fire">
+          <div class="sound-header">
+            <span class="sound-icon">🔥</span>
+            <div>
+              <h3 class="sound-name">Cozy Campfire</h3>
+              <span class="sound-type">Warm hearth & crickets</span>
+            </div>
+            <div class="visualizer-bars" aria-hidden="true">
+              <span></span><span></span><span></span><span></span>
+            </div>
+          </div>
+          <p class="sound-description">
+            Soothing crackling wood embers blended with distant twilight night crickets.
+          </p>
+          <div class="sound-controls">
+            <button class="btn-sound-play" data-sound="fire" aria-label="Toggle cozy campfire sound">
+              <span class="play-label">Play</span>
+            </button>
+            <div class="volume-container">
+              <span class="vol-label">Vol</span>
+              <input type="range" class="sound-volume" data-sound="fire" min="0" max="1" step="0.05" value="0.65" aria-label="Campfire volume">
+            </div>
+          </div>
+        </article>
+
+      </div>
+    </section>
+
+    <!-- ==============================================
+         5. AI MEDITATION ASSISTANT (Chatbot)
+         ============================================== -->
+    <section id="assistant" class="section assistant-section" aria-labelledby="assistantTitle">
+      <div class="section-header">
+        <span class="section-tag">Interactive AI Guidance</span>
+        <h2 id="assistantTitle" class="section-title">AI Mindfulness Companion</h2>
+        <p class="section-description">
+          Share how your day has been. Receive compassionate mindfulness tips, breathwork recommendations, and grounding techniques in real time.
+        </p>
+      </div>
+
+      <div class="chat-container glass-card">
+        <!-- Chat Header with API Configuration Toggle -->
+        <div class="chat-header">
+          <div class="chat-bot-info">
+            <div class="bot-avatar-circle">🪷</div>
+            <div>
+              <h3 class="bot-name">MindEase Companion</h3>
+              <span class="bot-status" id="botStatusBadge">
+                <span class="status-dot"></span> Built-in Mindfulness AI Active
+              </span>
+            </div>
+          </div>
+
+          <div class="chat-header-actions">
+            <button class="btn-icon" id="openApiSettingsBtn" title="Configure optional Google Gemini API Key" aria-label="API Settings">
+              <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2">
+                <circle cx="12" cy="12" r="3"></circle>
+                <path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"></path>
+              </svg>
+            </button>
+            <button class="btn-icon" id="clearChatBtn" title="Clear chat history" aria-label="Clear chat">
+              <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2">
+                <polyline points="3 6 5 6 21 6"></polyline>
+                <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path>
+              </svg>
+            </button>
+          </div>
+        </div>
+
+        <!-- Chat Conversation Messages Window -->
+        <div class="chat-messages" id="chatMessages" role="log" aria-live="polite">
+          <!-- Initial Welcome Message from Bot -->
+          <div class="message-bubble bot-message">
+            <div class="message-avatar">🪷</div>
+            <div class="message-body">
+              <p>Hello, peaceful friend. I am your <strong>MindEase AI Companion</strong>.</p>
+              <p>Whether you are dealing with exam pressure, anxious thoughts, difficulty resting, or simply seeking a quiet pause, I am here to listen. How are you feeling in your body and mind right now?</p>
+              <span class="message-timestamp">Just now</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- Quick Prompt Chips -->
+        <div class="quick-prompts-bar" id="quickPrompts">
+          <span class="prompt-hint">Tap a prompt:</span>
+          <button class="prompt-chip" data-prompt="I'm feeling very overwhelmed with college exams.">📚 Overwhelmed with exams</button>
+          <button class="prompt-chip" data-prompt="I can't fall asleep, my thoughts are racing.">🌙 Can't fall asleep</button>
+          <button class="prompt-chip" data-prompt="Guide me through quick panic or anxiety relief.">🌊 Quick anxiety relief</button>
+          <button class="prompt-chip" data-prompt="How does the 4-7-8 breathing method work?">🫁 How 4-7-8 breathing works</button>
+          <button class="prompt-chip" data-prompt="Give me a 1-minute positive mindfulness reflection.">☀️ 1-minute reflection</button>
+        </div>
+
+        <!-- Chat Input Form -->
+        <form class="chat-input-form" id="chatForm">
+          <input 
+            type="text" 
+            id="chatInput" 
+            class="chat-input" 
+            placeholder="Type your thoughts or feelings here..." 
+            autocomplete="off"
+            required
+            aria-label="Message to MindEase AI"
+          >
+          <button type="submit" class="btn-primary chat-send-btn" id="chatSendBtn" aria-label="Send message">
+            <span>Send</span>
+            <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2">
+              <line x1="22" y1="2" x2="11" y2="13"></line>
+              <polygon points="22 2 15 22 11 13 2 9 22 2"></polygon>
+            </svg>
+          </button>
+        </form>
+      </div>
+    </section>
+
+    <!-- ==============================================
+         6. USER PROGRESS & MINDFULNESS TRACKER
+         ============================================== -->
+    <section id="progress" class="section progress-section" aria-labelledby="progressTitle">
+      <div class="section-header">
+        <span class="section-tag">Habit & Health</span>
+        <h2 id="progressTitle" class="section-title">My Mindfulness Journey</h2>
+        <p class="section-description">
+          Track your completed meditation sessions, mindfulness minutes, and daily streaks saved securely in your browser's LocalStorage.
+        </p>
+      </div>
+
+      <div class="progress-dashboard">
+        <!-- Stats Metrics Cards -->
+        <div class="stats-grid">
+          <div class="stat-card glass-card">
+            <div class="stat-icon-wrap">⏱️</div>
+            <div class="stat-content">
+              <span class="stat-number" id="statTotalMinutes">0</span>
+              <span class="stat-label">Total Minutes Meditated</span>
+            </div>
+          </div>
+
+          <div class="stat-card glass-card">
+            <div class="stat-icon-wrap">🧘</div>
+            <div class="stat-content">
+              <span class="stat-number" id="statTotalSessions">0</span>
+              <span class="stat-label">Completed Sessions</span>
+            </div>
+          </div>
+
+          <div class="stat-card glass-card">
+            <div class="stat-icon-wrap">🔥</div>
+            <div class="stat-content">
+              <span class="stat-number" id="statCurrentStreak">0</span>
+              <span class="stat-label">Day Streak</span>
+            </div>
+          </div>
+
+          <div class="stat-card glass-card">
+            <div class="stat-icon-wrap">🌟</div>
+            <div class="stat-content">
+              <span class="stat-number" id="statBadgesCount">0</span>
+              <span class="stat-label">Mindfulness Badges</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- Badges & Achievements Ribbon -->
+        <div class="achievements-card glass-card">
+          <h3 class="subsection-title">Unlocked Mindfulness Milestones</h3>
+          <div class="badges-flex" id="badgesContainer">
+            <div class="badge-item locked" id="badgeFirstStep" title="Complete your 1st meditation session">
+              <div class="badge-icon">🌱</div>
+              <span class="badge-title">First Step</span>
+              <small class="badge-req">1 Session</small>
+            </div>
+            <div class="badge-item locked" id="badgeSerenity" title="Reach 10 total meditation minutes">
+              <div class="badge-icon">🌿</div>
+              <span class="badge-title">Serenity</span>
+              <small class="badge-req">10 Minutes</small>
+            </div>
+            <div class="badge-item locked" id="badgeZenStreak" title="Practice mindfulness on 3 consecutive days">
+              <div class="badge-icon">🔥</div>
+              <span class="badge-title">Zen Habit</span>
+              <small class="badge-req">3-Day Streak</small>
+            </div>
+            <div class="badge-item locked" id="badgeDeepMaster" title="Complete 5 total meditation sessions">
+              <div class="badge-icon">🧘‍♂️</div>
+              <span class="badge-title">Calm Master</span>
+              <small class="badge-req">5 Sessions</small>
+            </div>
+            <div class="badge-item locked" id="badgeSoundscapeLover" title="Explore ASMR Soundscapes">
+              <div class="badge-icon">🎧</div>
+              <span class="badge-title">Sound Alchemist</span>
+              <small class="badge-req">ASMR Explorer</small>
+            </div>
+          </div>
+        </div>
+
+        <!-- Session History Table Card -->
+        <div class="history-card glass-card">
+          <div class="history-header">
+            <h3 class="subsection-title">Recent Meditation Log</h3>
+            <div class="history-actions">
+              <button class="btn-secondary btn-sm" id="exportHistoryBtn" title="Export session records as a text file">
+                <svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2">
+                  <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path>
+                  <polyline points="7 10 12 15 17 10"></polyline>
+                  <line x1="12" y1="15" x2="12" y2="3"></line>
+                </svg>
+                <span>Export Report</span>
+              </button>
+              <button class="btn-danger btn-sm" id="resetHistoryBtn" title="Reset all progress stored in LocalStorage">
+                <svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2">
+                  <polyline points="3 6 5 6 21 6"></polyline>
+                  <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path>
+                </svg>
+                <span>Reset History</span>
+              </button>
+            </div>
+          </div>
+
+          <div class="table-responsive">
+            <table class="history-table" id="historyTable">
+              <thead>
+                <tr>
+                  <th scope="col">Date & Time</th>
+                  <th scope="col">Duration</th>
+                  <th scope="col">Breathing Style</th>
+                  <th scope="col">Initial Mood</th>
+                  <th scope="col">Status</th>
+                </tr>
+              </thead>
+              <tbody id="historyTableBody">
+                <!-- Rows injected dynamically via JavaScript -->
+                <tr class="empty-row">
+                  <td colspan="5">No completed meditation sessions yet. Start your first session above! 🌸</td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ==============================================
+         7. ABOUT THE PROJECT SECTION
+         ============================================== -->
+    <section id="about" class="section about-section" aria-labelledby="aboutTitle">
+      <div class="section-header">
+        <span class="section-tag">College Mini Project</span>
+        <h2 id="aboutTitle" class="section-title">About MindEase AI</h2>
+        <p class="section-description">
+          An academic web engineering project exploring affective computing, audio synthesis, and accessible digital wellness.
+        </p>
+      </div>
+
+      <div class="about-grid">
+        <div class="about-card glass-card">
+          <div class="about-icon">🎓</div>
+          <h3>Project Overview</h3>
+          <p>
+            <strong>MindEase AI</strong> was engineered as an innovative college mini project addressing academic fatigue, digital burnout, and cognitive stress among students and professionals through client-side wellness technologies.
+          </p>
+          <ul class="about-bullets">
+            <li><strong>Category:</strong> Human-Computer Interaction & AI for Health</li>
+            <li><strong>Core Tenet:</strong> Zero-friction accessibility (No mandatory backend or signups required)</li>
+            <li><strong>Privacy First:</strong> All sessions and credentials persist strictly within client-side LocalStorage</li>
+          </ul>
+        </div>
+
+        <div class="about-card glass-card">
+          <div class="about-icon">⚙️</div>
+          <h3>Technical Architecture</h3>
+          <p>
+            Built using modern, standards-compliant web technologies without bulky third-party frontend frameworks:
+          </p>
+          <div class="tech-tags">
+            <span class="tag">HTML5 Semantic DOM</span>
+            <span class="tag">CSS3 Glassmorphism</span>
+            <span class="tag">Vanilla JavaScript (ES6+)</span>
+            <span class="tag">Web Speech API (TTS)</span>
+            <span class="tag">Web Audio API Synthesis</span>
+            <span class="tag">LocalStorage Persistence</span>
+            <span class="tag">Google Gemini API (Optional)</span>
+          </div>
+        </div>
+
+        <div class="about-card glass-card">
+          <div class="about-icon">🛡️</div>
+          <h3>Ethics & Non-Medical Scope</h3>
+          <p>
+            MindEase AI is an educational stress-reduction and mindfulness tool. It is intentionally designed without diagnostic capabilities. In academic evaluation and everyday use, it demonstrates how browser APIs can deliver therapeutic ambient experiences responsibly.
+          </p>
+        </div>
+      </div>
+    </section>
+
+  </main>
+
+  <!-- ==============================================
+       FOOTER
+       ============================================== -->
+  <footer class="app-footer">
+    <div class="footer-container">
+      <div class="footer-brand">
+        <span class="footer-logo">🪷 MindEase AI</span>
+        <p class="footer-tagline">Guided Meditations & ASMR • Empowering peaceful minds through technology.</p>
+      </div>
+
+      <div class="footer-links">
+        <a href="#home">Home</a>
+        <a href="#mood">Mood Guide</a>
+        <a href="#meditate">Meditation</a>
+        <a href="#asmr">ASMR</a>
+        <a href="#assistant">AI Companion</a>
+        <a href="#progress">Progress</a>
+      </div>
+
+      <div class="footer-meta">
+        <p>© 2026 MindEase AI. College Mini Project. Free & Open Source.</p>
+        <small>Designed for deep relaxation, focus, and mindful living.</small>
+      </div>
+    </div>
+  </footer>
+
+  <!-- ==========================================================
+       MODAL 1: AUTHENTICATION (LOGIN & SIGNUP) GLASSMORPHISM CARD
+       ========================================================== -->
+  <div class="modal-overlay" id="authModal" role="dialog" aria-modal="true" aria-labelledby="authCardHeading" style="display: none;">
+    <div class="auth-card glass-card">
+      <!-- Close Modal Button -->
+      <button class="modal-close-btn" id="authModalClose" aria-label="Close login dialog">✕</button>
+
+      <!-- Logo & Calming Header -->
+      <div class="auth-card-header">
+        <div class="auth-lotus-icon">🪷</div>
+        <h2 id="authCardHeading" class="auth-heading">Welcome to Your Peaceful Space</h2>
+        <p class="auth-subheading">Take a deep breath. Your moment of calm starts here.</p>
+      </div>
+
+      <!-- Tab Switcher: Login / Signup -->
+      <div class="auth-tabs" role="tablist">
+        <button class="auth-tab-btn active" id="tabLoginBtn" role="tab" aria-selected="true" aria-controls="loginTabPanel">
+          Sign In
+        </button>
+        <button class="auth-tab-btn" id="tabSignupBtn" role="tab" aria-selected="false" aria-controls="signupTabPanel">
+          Create Account
+        </button>
+      </div>
+
+      <!-- Auth Alert / Feedback Box -->
+      <div class="auth-alert" id="authAlert" role="alert" style="display: none;"></div>
+
+      <!-- TAB PANEL 1: LOGIN FORM -->
+      <div class="auth-panel" id="loginTabPanel" role="tabpanel">
+        <form id="loginForm" novalidate>
+          <div class="form-group">
+            <label for="loginEmail" class="form-label">Email Address</label>
+            <div class="input-wrap">
+              <span class="input-icon">✉️</span>
+              <input type="email" id="loginEmail" class="form-input" placeholder="you@example.com" required autocomplete="email">
+            </div>
+          </div>
+
+          <div class="form-group">
+            <div class="label-row">
+              <label for="loginPassword" class="form-label">Password</label>
+              <button type="button" class="forgot-pass-link" id="forgotPassBtn">Forgot password?</button>
+            </div>
+            <div class="input-wrap">
+              <span class="input-icon">🔒</span>
+              <input type="password" id="loginPassword" class="form-input" placeholder="Enter your password" required autocomplete="current-password">
+              <button type="button" class="toggle-password-btn" data-target="loginPassword" aria-label="Show or hide password">👁️</button>
+            </div>
+          </div>
+
+          <div class="form-check-group">
+            <label class="checkbox-label">
+              <input type="checkbox" id="rememberMeCheckbox" checked>
+              <span>Remember me on this browser</span>
+            </label>
+          </div>
+
+          <button type="submit" class="btn-primary auth-submit-btn">
+            <span>Sign In to MindEase</span>
+            <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2">
+              <path d="M5 12h14M12 5l7 7-7 7"></path>
+            </svg>
+          </button>
+        </form>
+
+        <div class="auth-divider">
+          <span>OR QUICK ACCESS</span>
+        </div>
+
+        <!-- Quick 1-Click Demo Mode Button -->
+        <button type="button" class="btn-demo-login" id="demoLoginBtn" title="Instant demo login without typing credentials">
+          <span class="demo-icon">✨</span>
+          <div>
+            <strong>Quick Demo Mode</strong>
+            <small>Instant access as "Zen Explorer" (No setup needed)</small>
+          </div>
+        </button>
+      </div>
+
+      <!-- TAB PANEL 2: SIGNUP FORM -->
+      <div class="auth-panel" id="signupTabPanel" role="tabpanel" style="display: none;">
+        <form id="signupForm" novalidate>
+          <div class="form-group">
+            <label for="signupName" class="form-label">Full Name</label>
+            <div class="input-wrap">
+              <span class="input-icon">👤</span>
+              <input type="text" id="signupName" class="form-input" placeholder="Your Name or Alias" required autocomplete="name">
+            </div>
+          </div>
+
+          <div class="form-group">
+            <label for="signupEmail" class="form-label">Email Address</label>
+            <div class="input-wrap">
+              <span class="input-icon">✉️</span>
+              <input type="email" id="signupEmail" class="form-input" placeholder="you@example.com" required autocomplete="email">
+            </div>
+          </div>
+
+          <div class="form-group">
+            <label for="signupPassword" class="form-label">Password</label>
+            <div class="input-wrap">
+              <span class="input-icon">🔒</span>
+              <input type="password" id="signupPassword" class="form-input" placeholder="Create a password (min 6 characters)" required minlength="6" autocomplete="new-password">
+              <button type="button" class="toggle-password-btn" data-target="signupPassword" aria-label="Show or hide password">👁️</button>
+            </div>
+          </div>
+
+          <div class="form-group">
+            <label for="signupConfirmPassword" class="form-label">Confirm Password</label>
+            <div class="input-wrap">
+              <span class="input-icon">🔒</span>
+              <input type="password" id="signupConfirmPassword" class="form-input" placeholder="Re-enter password" required minlength="6" autocomplete="new-password">
+              <button type="button" class="toggle-password-btn" data-target="signupConfirmPassword" aria-label="Show or hide password">👁️</button>
+            </div>
+          </div>
+
+          <button type="submit" class="btn-primary auth-submit-btn">
+            <span>Create Peaceful Account</span>
+            <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2">
+              <path d="M5 12h14M12 5l7 7-7 7"></path>
+            </svg>
+          </button>
+        </form>
+      </div>
+
+      <!-- Privacy footnote -->
+      <p class="auth-footer-note">
+        🔒 <em>Demo security note:</em> Account information is securely stored inside your device's browser (LocalStorage). No external servers receive your passwords.
+      </p>
+    </div>
+  </div>
+
+  <!-- ==========================================================
+       MODAL 2: GEMINI API CONFIGURATION DIALOG
+       ========================================================== -->
+  <div class="modal-overlay" id="apiModal" role="dialog" aria-modal="true" aria-labelledby="apiModalTitle" style="display: none;">
+    <div class="api-card glass-card">
+      <button class="modal-close-btn" id="apiModalClose" aria-label="Close API settings">✕</button>
+      <div class="api-modal-header">
+        <span class="api-key-icon">🤖</span>
+        <h3 id="apiModalTitle">Optional Google Gemini AI Integration</h3>
+      </div>
+      <p class="api-modal-desc">
+        By default, MindEase AI features a rich built-in rule-based conversational mindfulness engine that works <strong>completely offline with zero configuration</strong>.
+      </p>
+      <p class="api-modal-desc">
+        If you want real-time dynamic Google Gemini generation for your college demo, enter a free Gemini API key below:
+      </p>
+
+      <form id="apiSettingsForm">
+        <div class="form-group">
+          <label for="geminiApiKeyInput" class="form-label">Gemini API Key (Optional):</label>
+          <input type="password" id="geminiApiKeyInput" class="form-input" placeholder="AIzaSy...">
+          <small class="input-hint">Get a free key from <a href="https://aistudio.google.com/app/apikey" target="_blank" rel="noopener">Google AI Studio</a>. Key is saved only in your local browser.</small>
+        </div>
+
+        <div class="api-modal-buttons">
+          <button type="submit" class="btn-primary">Save Key</button>
+          <button type="button" class="btn-secondary" id="clearApiKeyBtn">Clear / Use Built-in AI</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- Session Complete Celebration Toast -->
+  <div class="toast-notification" id="toastNotification" role="status" aria-live="polite">
+    <span class="toast-icon">🪷</span>
+    <span class="toast-message" id="toastMessage">Session completed! Well done.</span>
+  </div>
+
+  <!-- Core JavaScript Application -->
+  <script src="script.js"></script>
+</body>
+</html>
